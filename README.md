@@ -1,3 +1,121 @@
+# Multicat Plugin for Cotonti Siena
+
+![Cotonti Siena](https://img.shields.io/badge/Cotonti-Siena%20v0.9.26-blue) ![PHP](https://img.shields.io/badge/PHP-8.4%2B-green) ![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-yellow) ![License](https://img.shields.io/badge/License-BSD-red) ![Version](https://img.shields.io/badge/Version-1.1.0-orange)
+
+## Plugin Description
+
+The **Multicat** plugin is designed for the **Page** module in CMF Cotonti Siena.  
+It allows assigning a page to multiple categories, extending the default Cotonti system, where a page can belong only to a single category.  
+This is especially useful for sites with complex content structures, where an article can be relevant to several topics.
+
+- **Key Features**:
+  - Category relations are stored in a separate table `cot_page_multicats` using `structure_id` for identification.
+  - Automatic migration of existing categories during installation.
+  - Integration with add/edit page forms via checkboxes.
+  - Display of multiple categories in the admin panel and page lists.
+  - Category-based filtering in `page.list` queries that takes multicategories into account.
+
+This plugin is built for Cotonti Siena v0.9.26+, requires PHP 8.4+ and MySQL 8.0+.  
+No external libraries are needed — it uses Cotonti's native hooks, structure, and SQL system.
+
+- **Author**: webitproff  
+- **Release Date**: 2025-09-14  
+- **Version**: 1.1.0  
+- **License**: BSD  
+- **Repository**: [https://github.com/webitproff/cot-multicat](https://github.com/webitproff/cot-multicat)  
+- **Dependencies**: Requires the `page` module. No other modules are required.
+
+## How It Works
+
+The plugin uses Cotonti hooks to extend the Page module functionality without changing the core.  
+
+1. **Data Storage**:
+   - Uses the table `cot_page_multicats` to store relations between pages (`pcat_page_id`) and categories (`pcat_cat_id`), where `pcat_cat_id` is the `structure_id` from `cot_structure`.
+   - Prevents data duplication and stays compatible with the default Page module.
+   - Existing categories from `cot_pages.page_cat` are automatically migrated to `structure_id` values during installation.
+
+2. **Category Handling**:
+   - Functions in `inc/multicat.functions.php` manage retrieving, saving, and displaying categories.
+   - Categories are selected via checkboxes in add/edit forms.
+   - The first selected category becomes the main one (`page_cat` in `cot_pages`), others are stored as multicategories.
+   - Page list filtering (`page.list`) considers both main and additional categories using SQL subqueries.
+
+3. **UI Integration**:
+   - New template tags: `{PAGEFORM_CAT}` (checkboxes) and `{PAGEFORM_CAT_HINT}` (hint text).
+   - In the admin panel, a list of all categories is shown per page row.
+   - Language file supports English, with possibility to add more.
+
+4. **Security & Performance**:
+   - All queries use safe parameters to prevent SQL injections.
+   - Category filtering is optimized with indexes.
+   - `cot_auth` permissions are checked when displaying category options.
+
+For large sites, indexing `cot_page_multicats` is recommended for performance.
+
+## Integration
+
+The plugin integrates entirely through Cotonti hooks. No core file modifications needed.
+
+- **Hooks used**:
+  - `global`: define table, load language.
+  - `page.add.add.done`: save categories after adding a page.
+  - `page.admin.loop`: show categories in admin list.
+  - `page.delete.first`: delete relations before deleting a page.
+  - `page.edit.update.import`: import & validate categories on edit.
+  - `page.edit.tags`: generate checkbox form in editor.
+  - `page.edit.update.done`: save categories after editing.
+  - `page.list.query`: extend SQL filter by category.
+
+- **Template changes**:
+  - Add `{PAGEFORM_CAT}` and `{PAGEFORM_CAT_HINT}` to `page.edit.tpl` and `page.add.tpl` (after standard category field).
+  - In `page.admin.tpl`, add `{ADMIN_PAGE_MULTICATS}` inside the `PAGE_ROW` block to display extra categories.
+
+- **Compatibility**:
+  - Works with the Page module directly.
+  - If you use other SEO/category plugins, test for compatibility.
+
+## Installation & Usage
+
+### Installation
+
+1. **Download plugin**:
+   - Clone repository: `git clone https://github.com/webitproff/cot-multicat.git`  
+   - Or download ZIP and unpack into `plugins/`
+
+2. **Install via Cotonti Admin Panel**:
+   - Go to Admin → Extensions → Install → choose `multicat`
+   - Installer will create `cot_page_multicats` table and migrate categories
+
+3. **Configure**:
+   - In plugin settings, enable `enabled` option (default is enabled).
+
+### Usage
+
+1. **Add/Edit a page**:
+   - Choose multiple categories using checkboxes.
+   - At least one category is required.
+   - Save — categories are stored in DB.
+
+2. **View in admin**:
+   - The admin page list shows all categories in a row.
+   - On the frontend, category filters include multicategories.
+
+3. **Delete a page**:
+   - Relations in `cot_page_multicats` are automatically removed.
+
+4. **Update/Remove plugin**:
+   - Backup DB before removal.
+   - Removing plugin does not delete `cot_page_multicats`. Drop manually if needed.
+
+### Common Issues
+
+- **Error: "must select at least one category"** → check that at least one checkbox is ticked.  
+- **Categories not showing** → check `cot_auth` rights and `structure_id` values.  
+- **Template conflicts** → ensure `{PAGEFORM_CAT}` and `{PAGEFORM_CAT_HINT}` tags are added.  
+- **Migration failed** → manually check SQL in `setup/multicat.install.sql`.
+
+___
+
 # Плагин Multicat для Cotonti Siena
 
 ![Cotonti Siena](https://img.shields.io/badge/Cotonti-Siena%20v0.9.26-blue) ![PHP](https://img.shields.io/badge/PHP-8.4%2B-green) ![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-yellow) ![License](https://img.shields.io/badge/License-BSD-red) ![Version](https://img.shields.io/badge/Version-1.1.0-orange)
