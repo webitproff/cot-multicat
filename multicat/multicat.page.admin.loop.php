@@ -22,4 +22,15 @@ defined('COT_CODE') or die('Wrong URL');
 
 require_once cot_incfile('multicat', 'plug');
 
-$row['page_multicats'] = implode(', ', multicat_get_cat_titles($row['page_id']));
+
+/**
+ * @var array $row Current page row
+ * @var XTemplate $t Current template object
+ */
+
+if (!empty($row['page_id'])) {
+    $multicats = multicat_get_cat_titles($row['page_id']);
+    $t->assign([
+        'ADMIN_PAGE_MULTICATS' => !empty($multicats) ? implode(', ', $multicats) : ''
+    ]);
+}
