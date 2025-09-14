@@ -19,7 +19,7 @@
 - **Дата выпуска**: 2025-09-14
 - **Версия**: 1.1.0
 - **Лицензия**: BSD
-- **Репозиторий**: [https://github.com/webitproff](https://github.com/webitproff)
+- **Репозиторий**: [https://github.com/webitproff/cot-multicat](https://github.com/webitproff/cot-multicat)
 - **Зависимости**: Модуль `page` (требуется), другие модули не обязательны.
 
 ## Принципы работы
@@ -75,7 +75,7 @@
 ### Установка
 
 1. **Скачайте плагин**:
-- Клонируйте репозиторий: `git clone https://github.com/webitproff/multicat.git` или скачайте ZIP.
+- Клонируйте репозиторий: `git clone https://github.com/webitproff/cot-multicat.git` или скачайте ZIP.
 
 2. **Установка через админ-панель Cotonti**:
 - Скопируйте папку `multicat` в `plugins/` вашего сайта.
