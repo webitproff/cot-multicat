@@ -96,6 +96,18 @@ Copy the `multicat` folder into the `plugins/` directory on your server.
 Add the tags to your templates:
 
 - In `page.edit.tpl` and `page.add.tpl` — add `{PAGEFORM_CAT}` and `{PAGEFORM_CAT_HINT}` right after the standard category field.
+
+```
+<!-- IF {PHP|cot_plugin_active('multicat')} -->
+<div class="col-12">
+	<label for="multicat" class="form-label fw-semibold">{PHP.L.multicat_cats_edit}</label>
+	<div class="input-group has-validation" id="multicat">{PAGEFORM_CAT} </div>
+	<small class="form-text text-muted">{PHP.L.multicat_cats}. {PAGEFORM_CAT_HINT}</small>
+</div>
+<!-- ENDIF -->
+```
+
+- 
 - In `page.admin.tpl` — inside the `PAGE_ROW` block (e.g. after `{ADMIN_PAGE_LOCAL_STATUS}`) add `{ADMIN_PAGE_MULTICATS}`.
 
 > **Important:** if you do not add these tags, multiple categories will not work — there will simply be no selection form and no output in the admin area.
