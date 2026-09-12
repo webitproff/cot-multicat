@@ -150,3 +150,7 @@ $L['multicat_confirm_massunlink']   = 'Видалити всі зв\'язки в
 $L['multicat_btn_unlink_short']     = 'Очистити зв\'язки';
 $L['multicat_btn_unlink_selected']  = 'Очистити зв\'язки вибраних';
 $L['multicat_btn_edit_product']     = 'Редагувати сторінку';
+
+
+$L['multicat_page_cats_links']         = 'Мультикатегорії статті';
+$L['multicat_page_cats_links_hint']    = 'Додаткові категорії, в яких ця стаття показується як схожа.';
