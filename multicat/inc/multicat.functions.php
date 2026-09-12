@@ -283,3 +283,107 @@ function multicat_build_checkbox_html($selected = [])
 
     return $html;
 }
+
+/**
+ * Возвращает категории страницы с данными, готовыми для вывода в шаблон:
+ * id, code, title (с учётом перевода i18n), url.
+ *
+ * Использует:
+ *   — таблицу cot_page_multicats для получения списка structure_id;
+ *   — таблицу cot_structure для code/title по structure_id;
+ *   — плагин i18n (если активен) для перевода названия категории
+ *     через функцию cot_i18n_get_cat(), данные из cot_i18n_structure.
+ *
+ * @param int         $page_id ID страницы.
+ * @param string|null $locale  Локаль для перевода. null = текущая из i18n.
+ * @return array Список массивов:
+ *               [
+ *                 'id'    => int,    // structure_id
+ *                 'code'  => string, // structure_code
+ *                 'title' => string, // заголовок (с переводом)
+ *                 'url'   => string, // URL категории
+ *               ]
+ */
+function multicat_get_cats_with_data($page_id, $locale = null)
+{
+    global $db, $db_structure, $structure;
+
+    $page_id = (int)$page_id;
+    if ($page_id <= 0) {
+        return [];
+    }
+
+    $cat_ids = multicat_get_cats($page_id);
+    if (empty($cat_ids)) {
+        return [];
+    }
+
+    // Базовая информация по всем категориям — одним запросом
+    $sql = "SELECT structure_id, structure_code, structure_title FROM $db_structure
+             WHERE structure_id IN (" . implode(',', array_map('intval', $cat_ids)) . ")
+               AND structure_area = 'page'";
+    $res = $db->query($sql);
+
+    $db_cats = [];
+    foreach ($res->fetchAll() as $row) {
+        $db_cats[(int)$row['structure_id']] = $row;
+    }
+
+    // Активность плагина i18n
+    $i18nActive = cot_plugin_active('i18n') && function_exists('cot_i18n_get_cat');
+
+    // Локаль: если не передали — берём текущую из i18n или язык пользователя
+    if ($locale === null) {
+        global $i18n_locale;
+        if (!empty($i18n_locale)) {
+            $locale = (string)$i18n_locale;
+        } elseif (!empty(Cot::$usr['lang'])) {
+            $locale = (string)Cot::$usr['lang'];
+        } else {
+            $locale = (string)Cot::$cfg['defaultlang'];
+        }
+    }
+
+    $result = [];
+    foreach ($cat_ids as $cat_id) {
+        $cat_id = (int)$cat_id;
+
+        $code  = '';
+        $title = '';
+
+        if (isset($db_cats[$cat_id])) {
+            $code  = (string)$db_cats[$cat_id]['structure_code'];
+            $title = (string)$db_cats[$cat_id]['structure_title'];
+        } else {
+            // Fallback: ищем в $structure['page'] по structure_id
+            foreach ($structure['page'] as $scode => $cdata) {
+                if (isset($cdata['id']) && (int)$cdata['id'] === $cat_id) {
+                    $code  = (string)$scode;
+                    $title = (string)($cdata['title'] ?? $scode);
+                    break;
+                }
+            }
+            if ($code === '') {
+                continue;
+            }
+        }
+
+        // Применяем перевод категории (i18n), если активен
+        if ($i18nActive && !empty($locale)) {
+            $translated = cot_i18n_get_cat($code, $locale);
+            if ($translated && !empty($translated['title'])) {
+                $title = $translated['title'];
+            }
+        }
+
+        $result[] = [
+            'id'    => $cat_id,
+            'code'  => $code,
+            'title' => $title,
+            'url'   => cot_url('page', ['c' => $code]),
+        ];
+    }
+
+    return $result;
+}
+
