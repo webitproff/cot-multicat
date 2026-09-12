@@ -150,3 +150,6 @@ $L['multicat_confirm_massunlink']   = 'Delete all links of the selected pages?';
 $L['multicat_btn_unlink_short']     = 'Clear links';
 $L['multicat_btn_unlink_selected']  = 'Clear links of selected';
 $L['multicat_btn_edit_product']     = 'Edit page';
+
+$L['multicat_page_cats_links']         = 'Article multicategories';
+$L['multicat_page_cats_links_hint']    = 'Additional categories where this article is shown as similar.';
